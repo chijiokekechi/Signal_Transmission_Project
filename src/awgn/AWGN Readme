@@ -1,0 +1,63 @@
+This will go over the input, output and all the inner workings of the awgn code I created.
+
+First is how the code is presented in sprints:
+"./RANDNUMexe | ./AWGNexe 10"
+The first executable is to generate the numbers I will be using as my input for the AWGN channel. The numbers that it produces are complex pairs and are in the format "Real_number,Imaginary_Number" with Real_number and Imaginary_Number being floats. The second executable is the actual program which I will go into more indepth in a moment. The final input is the desired SNR for input.
+
+The code for the AWGN channel can be broken into 3 basic parts:
+
+1. The input.
+%Start of code block
+    int main(int argc, char* argv[]) {
+        if(argc == 2)
+        {
+            snr_dB = stof(argv[1]);
+            snr_linear = std::pow(10, snr_dB/10);
+            noise_power_linear = signal_power_linear/snr_linear;
+        }
+        
+        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        default_random_engine generator(seed);
+        normal_distribution<float> distribution(0, sqrt(noise_power_linear/2)); // zero mean, user variance
+        distribution(generator); // "warming up" the RNG
+%End of code block
+As seen above it will take your second input of the arguement and conver that into the noise variance for the random number generator to use with a normal distribution as desired. The random number generator also seeds off of the clock to allow for a more randomized set of outputs every iteration it is ran.
+
+2.Reading in the concatenated file.
+%Start of code block
+    //Read in clean samples
+	getline(cin,real_string,',');
+	while (!cin.eof()) 
+	{
+		// read value from stdin
+		getline(cin,imag_string);
+
+		real_sample = stof(real_string);
+		imag_sample = stof(imag_string);
+		
+        %Output chunk of code goes here
+		
+		getline(cin,real_string,',');
+	}
+%End of code block
+For this figured out (with assistance) that the getline has to go outside of the loop so the program does not crash due to running out of memory. The input has a comma between the real and imaginary numbers, so we utilize that to split up the strings and then just convert them to floats to be process by the "additive" part of this AWGN channel.
+
+3. The output.
+%Start the code block
+    random_num = distribution(generator);
+    real_temp = real_sample+random_num;
+    random_num = distribution(generator);
+    imag_temp = imag_sample+random_num;
+    const std::complex<float> AWGN_signal(real_temp, imag_temp);
+
+    cout << AWGN_signal << endl;
+%End of code block
+This is perhaps the most simple of the 3 blocks. All that is going on is that I am generating a random number and then adding it to whatever is our real number we have pulled. I then repeat the process for the current imaginary number. Once this is done for both numbers, I create a complex number which will combine the 2 into a single variable (see complex library documentation if confused). I then print out that variable which can be used by the next process in the pipeline. After that is complete we move onto getting the next clean samples.
+
+Troubleshooting Tips:
+1.You can always create arrays of numbers and test them with this so you have a controlled input to see the output.
+2.You can set the seed so the iterations are consistent to monitor changes.
+3.You can change the variables for the random number generator to allow for control through that method.
+4.The input can be made into the code but it would most likely be easier to test by just making a short script to print out some numbers in the input format I listed above. This will allow you change one code independent from the other and avoid confusion. (I found this out the hard way.)
+5.The code I used to compile is: "g++ -o AWGNexe awgn_channel_in_C++.cpp"
+6.The output should be in the complex data type form: "(0.988751,1.79395)". Note: (Real_number,Imaginary_Number)

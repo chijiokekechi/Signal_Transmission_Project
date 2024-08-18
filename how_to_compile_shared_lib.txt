@@ -1,0 +1,6 @@
+src: https://iq.opengenus.org/create-shared-library-in-cpp/
+
+g++ -c -fPIC src.cpp -> creates src.o from src.cpp
+g++ -shared -o libsrc.so src.o -> creates libsrc.so from src.o (the lib part is necessary for the next command)
+g++ -L <path to .so file> -o run.exe file.cpp -lsrc -> creates run.exe using -libsrc.so
+

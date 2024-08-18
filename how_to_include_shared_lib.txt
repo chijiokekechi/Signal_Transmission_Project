@@ -1,0 +1,20 @@
+When running a binary file that requires use of a shared library, the library can be properly linked to in one of 2 ways:
+
+METHOD 1
+Step 1: Run the following line in the terminal...
+
+        export LD_LIBRARY_PATH=<path to .so file>:"$LD_LIBRARY_PATH"
+
+Step 2: Run the binary file from the terminal like usual...
+
+        ./run.exe
+
+METHOD 2
+Step 1: Run the binary file from the terminal like below...
+
+        LD_LIBRARY_PATH=<path to .so file>:"$LD_LIBRARY_PATH" ./run.exe
+
+Note: Method 2 is the only method that works in a Makefile. It can be shortened to a Makefile variable and used the in the following "shorthand" alternative (especially handy if used at multiple places within the Makefile).
+
+        LIB_PATH = LD_LIBRARY_PATH=<path to .so file>:"$LD_LIBRARY_PATH" 
+        $(LIB_PATH) ./run.exe 
