@@ -1,3 +1,3 @@
-# ECE 6710 Spring 2022
+# Signal Transmission Project
 
-Repository to store information and code relating to the ECE 6710 course. 
+This repo contains a group project, which was used to simulate the transmission of an encoded signal, which would have a voice output on a GNU radio. The codes were written in C++ and Python
